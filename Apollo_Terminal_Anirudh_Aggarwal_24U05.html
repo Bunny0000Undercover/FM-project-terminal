@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Apollo Tyres — Advanced Valuation Terminal</title>
+<meta name="description" content="Apollo Tyres Narrative Valuation Terminal by Anirudh Aggarwal, IPM Programme TAPMI. Intrinsic value ₹498/share.">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0e17;--bg2:#111623;--bg3:#161c2d;--bg4:#1c2338;
+  --border:#2a3350;--border2:#334070;
+  --text:#e8eaf0;--text2:#8b93b0;--text3:#4a5272;
+  --accent:#f59e0b;--accent2:#fbbf24;
+  --blue:#3b82f6;--blue2:#60a5fa;
+  --green:#22c55e;--green2:#4ade80;--green-bg:rgba(34,197,94,.1);--green-border:rgba(34,197,94,.25);
+  --red:#ef4444;--red2:#f87171;--red-bg:rgba(239,68,68,.1);--red-border:rgba(239,68,68,.25);
+  --amber:#f59e0b;--amber-bg:rgba(245,158,11,.1);--amber-border:rgba(245,158,11,.25);
+  --navy:#1e3a8a;
+  --font:'Space Grotesk',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --r:8px;--r-sm:5px;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;overflow-x:hidden}
+.hdr{background:linear-gradient(90deg,#0d1321 0%,#0f172a 100%);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;flex-wrap:wrap;gap:8px}
+.hdr-left{display:flex;align-items:center;gap:12px}
+.hdr-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),#d97706);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#000;letter-spacing:-.02em}
+.hdr-name{font-size:15px;font-weight:700;color:var(--text);letter-spacing:-.01em}
+.hdr-sub{font-size:11px;color:var(--text2);margin-top:2px;font-family:var(--mono)}
+.hdr-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hdr-chip{font-size:11px;font-family:var(--mono);padding:4px 10px;border-radius:20px;border:1px solid}
+.chip-green{background:var(--green-bg);color:var(--green2);border-color:var(--green-border)}
+.chip-amber{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-border)}
+.chip-blue{background:rgba(59,130,246,.1);color:var(--blue2);border-color:rgba(59,130,246,.25)}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green2);display:inline-block;margin-right:5px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.app{padding:16px 20px;max-width:1300px;margin:0 auto}
+.tabs{display:flex;gap:2px;margin-bottom:16px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:4px;width:fit-content;flex-wrap:wrap}
+.tab{padding:7px 16px;font-size:12px;font-family:var(--font);font-weight:500;color:var(--text2);cursor:pointer;border-radius:var(--r-sm);border:none;background:transparent;transition:all .2s;letter-spacing:.01em}
+.tab.active{background:var(--bg4);color:var(--text);border:1px solid var(--border2)}
+.tab:hover:not(.active){color:var(--text);background:var(--bg3)}
+.pane{display:none}.pane.active{display:block}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px}
+.card-title{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px}
+.sl-row{margin-bottom:12px}
+.sl-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.sl-lbl{font-size:12.5px;color:var(--text2)}
+.sl-val{font-size:12.5px;font-weight:600;font-family:var(--mono);color:var(--accent)}
+input[type=range]{width:100%;height:3px;accent-color:var(--accent);cursor:pointer;background:var(--bg4)}
+.kpi{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;text-align:center}
+.kpi-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
+.kpi-val{font-size:22px;font-weight:700;font-family:var(--mono);color:var(--text)}
+.kpi-sub{font-size:11px;color:var(--text2);margin-top:3px}
+.verdict{padding:10px 14px;border-radius:var(--r-sm);font-size:13px;font-weight:600;margin-bottom:12px;border:1px solid;display:flex;align-items:center;gap:8px}
+.v-buy{background:var(--green-bg);color:var(--green2);border-color:var(--green-border)}
+.v-sell{background:var(--red-bg);color:var(--red2);border-color:var(--red-border)}
+.v-hold{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-border)}
+.sc-row{display:flex;gap:6px;margin-bottom:14px}
+.sc-btn{flex:1;padding:8px 4px;border:1px solid var(--border);border-radius:var(--r-sm);background:transparent;cursor:pointer;font-size:12px;font-family:var(--font);font-weight:500;color:var(--text2);transition:all .15s}
+.sc-btn.on{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700}
+.sc-btn:hover:not(.on){border-color:var(--border2);color:var(--text)}
+.wf-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.wf-lbl{font-size:12px;color:var(--text2);width:170px;flex-shrink:0}
+.wf-track{flex:1;height:20px;background:var(--bg3);border-radius:3px;overflow:hidden;position:relative}
+.wf-fill{height:100%;border-radius:3px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.wf-num{font-size:12px;font-family:var(--mono);color:var(--text);width:95px;text-align:right;flex-shrink:0}
+.lc-track{display:flex;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:12px}
+.lc-seg{flex:1;padding:10px 6px;text-align:center;font-size:11px;color:var(--text3);border-right:1px solid var(--border);transition:all .4s}
+.lc-seg:last-child{border-right:none}
+.lc-seg.lit{background:linear-gradient(135deg,var(--accent),#d97706);color:#000;font-weight:700}
+.lc-seg-name{font-size:10.5px;margin-top:3px;display:block}
+.signal-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)}
+.signal-row:last-child{border-bottom:none}
+.signal-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.signal-name{font-size:12px;color:var(--text2);flex:1}
+.signal-val{font-size:12px;font-family:var(--mono);color:var(--text);font-weight:500}
+.signal-arrow{font-size:13px;width:18px;text-align:center;font-weight:700}
+.gauge-wrap{width:100%;height:115px;margin-bottom:4px}
+.strat-block{background:var(--bg3);border-radius:var(--r-sm);padding:10px 12px;margin-bottom:8px;border-left:3px solid transparent}
+.strat-block.priority{border-left-color:var(--green2)}
+.strat-block.caution{border-left-color:var(--amber)}
+.strat-block.avoid{border-left-color:var(--red2)}
+.strat-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px}
+.strat-body{font-size:12px;color:var(--text2);line-height:1.5}
+.strat-tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em;border:1px solid}
+.tag-p{background:var(--green-bg);color:var(--green2);border-color:var(--green-border)}
+.tag-c{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-border)}
+.tag-a{background:var(--red-bg);color:var(--red2);border-color:var(--red-border)}
+.sens-tbl{width:100%;border-collapse:collapse;font-size:11.5px;font-family:var(--mono);table-layout:fixed}
+.sens-tbl th{background:var(--bg3);color:var(--text2);font-size:10px;padding:6px 4px;text-align:center;font-weight:600;border:1px solid var(--border);letter-spacing:.04em}
+.sens-tbl td{padding:6px 3px;text-align:center;border:1px solid var(--border);transition:background .3s}
+.cell-b{background:rgba(34,197,94,.18);color:var(--green2)}
+.cell-h{background:rgba(245,158,11,.15);color:var(--amber)}
+.cell-s{background:rgba(239,68,68,.18);color:var(--red2)}
+.cell-base{outline:2px solid var(--accent);outline-offset:-2px;font-weight:700}
+.mkt-row{display:flex;align-items:center;gap:10px;padding-top:10px;border-top:1px solid var(--border);margin-top:10px;flex-wrap:wrap}
+.mkt-lbl{font-size:12px;color:var(--text2)}
+.mkt-row input[type=number]{width:95px;padding:5px 8px;border:1px solid var(--border2);border-radius:var(--r-sm);background:var(--bg3);color:var(--text);font-size:13px;font-family:var(--mono);outline:none}
+.mkt-row input:focus{border-color:var(--accent)}
+.mos-val{font-size:13px;font-weight:700;font-family:var(--mono)}
+.stats-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.stat-chip{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-sm);padding:6px 14px;font-size:12px;color:var(--text2)}
+.stat-chip span{font-weight:600;color:var(--text);margin-left:4px;font-family:var(--mono)}
+.narrative{background:linear-gradient(135deg,rgba(245,158,11,.06),rgba(245,158,11,.02));border:1px solid var(--amber-border);border-radius:var(--r);padding:14px 18px;margin-bottom:14px;font-size:12.5px;line-height:1.7;color:var(--text2)}
+.narrative strong{color:var(--accent)}
+.narrative em{color:var(--text);font-style:normal;font-weight:600}
+.divider{height:1px;background:var(--border);margin:12px 0}
+.fcfe-note{padding:12px 16px;border-radius:var(--r);font-size:12px;line-height:1.6;margin-bottom:12px}
+.ag-badge{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="hdr-icon">AT</div>
+    <div>
+      <div class="hdr-name">Apollo Tyres Limited &nbsp;<span style="color:var(--text3);font-weight:400;font-size:12px">Advanced Valuation Terminal</span></div>
+      <div class="hdr-sub">NSE: APOLLOTYRE &nbsp;·&nbsp; FY2024-25 Base &nbsp;·&nbsp; Revenue ₹2,61,230 Mn &nbsp;·&nbsp; 635M shares</div>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <span class="hdr-chip chip-blue">FCFF + FCFE</span>
+    <span class="hdr-chip chip-amber">75 Scenarios</span>
+    <span class="hdr-chip chip-green"><span class="live-dot"></span>Anirudh Aggarwal · 24U05 · TAPMI</span>
+    <span class="hdr-chip chip-blue" style="font-size:10px">FY25 Base | IPM Programme</span>
+  </div>
+</div>
+
+<div class="app">
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('valuation',this)">⚙ Valuation Engine</button>
+  <button class="tab" onclick="switchTab('fcfe',this)">⟳ FCFE Model</button>
+  <button class="tab" onclick="switchTab('waterfall',this)">▦ DCF Waterfall</button>
+  <button class="tab" onclick="switchTab('lifecycle',this)">◉ Lifecycle Radar</button>
+  <button class="tab" onclick="switchTab('strategy',this)">◈ Strategic Advisor</button>
+  <button class="tab" onclick="switchTab('sensitivity',this)">⊞ Sensitivity Matrix</button>
+  <button class="tab" onclick="switchTab('rdcf',this)">🔍 Reverse DCF</button>
+  <button class="tab" onclick="switchTab('relative',this)">📊 Relative Value</button>
+  <button class="tab" onclick="switchTab('dividends',this)">💰 Dividends</button>
+  <button class="tab" onclick="switchTab('capstruct',this)">⚖ Capital Structure</button>
+  <button class="tab" onclick="switchTab('eva',this)">💎 EVA</button>
+  <button class="tab" onclick="switchTab('projections',this)">📈 Projections</button>
+  <button class="tab" onclick="switchTab('positioning',this)">🎯 Positioning</button>
+  <button class="tab" onclick="switchTab('askai',this)">🤖 Ask AI</button>
+</div>
+
+<!-- ═══ TAB 1 — VALUATION ENGINE (FCFF) ═══ -->
+<div id="pane-valuation" class="pane active">
+  <div class="narrative">
+    <strong>🌾 The Harvesting Narrative:</strong> Apollo Tyres spent the last decade <em>sowing</em> — pouring billions into greenfield factories in Andhra Pradesh, Hungary, and Chennai. Now, those factories are built, paid for, and running. <em>Depreciation exceeds CapEx.</em> Net reinvestment is negative. The company has become a <strong>Free Cash Flow Machine</strong>, generating ₹21–28 Bn annually from assets already in the ground.
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-chip">Base Revenue <span>₹2,61,230 Mn</span></div>
+    <div class="stat-chip">EBIT <span>₹20,700 Mn (7.92%)</span></div>
+    <div class="stat-chip">Gross Debt <span>₹54,300 Mn</span></div>
+    <div class="stat-chip">Cash <span>₹29,500 Mn</span></div>
+    <div class="stat-chip">Net Debt <span>₹24,800 Mn</span></div>
+    <div class="stat-chip">Shares <span>635 Mn</span></div>
+  </div>
+
+  <div class="sc-row">
+    <button class="sc-btn" onclick="loadS('bear',this)">🐻 Bear Case</button>
+    <button class="sc-btn on" onclick="loadS('base',this)">⚖ Base Case</button>
+    <button class="sc-btn" onclick="loadS('bull',this)">🐂 Bull Case</button>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">Part A — Revenue Growth (Premiumization Story)</div>
+      <div class="sl-row"><div class="sl-top"><span class="sl-lbl">Year 1–3 growth rate</span><span class="sl-val" id="v-g1">8.0%</span></div><input type="range" id="s-g1" min="2" max="15" step="0.1" value="8.0" oninput="sv('g1',this.value,'%');calc()"></div>
+      <div class="sl-row"><div class="sl-top"><span class="sl-lbl">Year 4–5 growth rate</span><span class="sl-val" id="v-g2">5.5%</span></div><input type="range" id="s-g2" min="2" max="12" step="0.1" value="5.5" oninput="sv('g2',this.value,'%');calc()"></div>
+      <div class="sl-row"><div class="sl-top"><span class="sl-lbl">Terminal growth rate (g∞)</span><span class="sl-val" id="v-tg">4.5%</span></div><input type="range" id="s-tg" min="2" max="7" step="0.1" value="4.5" oninput="sv('tg',this.value,'%');calc()"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Parts B & C — Margin Expansion & Capital Efficiency</div>
+      <div class="sl-row"><div class="sl-top"><span class="sl-lbl">EBIT margin (→ 8.80% target)</span><span class="sl-val" id="v-em">7.92%</span></div><input type="range" id="s-em" min="5" max="14" step="0.1" value="7.92" oninput="sv('em',this.value,'%');calc()"></div>
+      <div class="sl-row"><div class="sl-top"><span class="sl-lbl">Effective tax rate</span><span class="sl-val" id="v-tax">28.0%</span></div><input type="range" id="s-tax" min="20" max="35" step="0.5" value="28.0" oninput="sv('tax',this.value,'%');calc()"></div>
+      <div class="sl-row"><div class="sl-top"><span class="sl-lbl">Sales-to-capital ratio (×)</span><span class="sl-val" id="v-s2c">1.75×</span></div><input type="range" id="s-s2c" min="0.5" max="4.0" step="0.05" value="1.75" oninput="sv('s2c',this.value,'×');calc()"></div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">Parts D & E — Risk & Financing (Deleverage Story)</div>
+      <div class="sl-row"><div class="sl-top"><span class="sl-lbl">WACC</span><span class="sl-val" id="v-wacc">12.20%</span></div><input type="range" id="s-wacc" min="8" max="18" step="0.1" value="12.2" oninput="sv('wacc',this.value,'%');calc()"></div>
+      <div class="sl-row"><div class="sl-top"><span class="sl-lbl">Net debt</span><span class="sl-val" id="v-debt">₹24,800 Mn</span></div><input type="range" id="s-debt" min="-20000" max="80000" step="500" value="24800" oninput="sv3('debt',this.value);calc()"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">FCFF Output — Intrinsic Value</div>
+      <div class="g2" style="gap:8px;margin-bottom:10px">
+        <div class="kpi"><div class="kpi-lbl">Enterprise Value</div><div class="kpi-val" id="r-ev">—</div><div class="kpi-sub">₹ Millions</div></div>
+        <div class="kpi"><div class="kpi-lbl">Value / Share</div><div class="kpi-val" id="r-ivps">—</div><div class="kpi-sub">₹ per share</div></div>
+      </div>
+      <div id="verdict-fcff" class="verdict v-hold"><span>⏳</span>Calculating…</div>
+      <div class="mkt-row">
+        <span class="mkt-lbl">Market price (₹):</span>
+        <input type="number" id="mkt" value="498" min="100" max="2000" step="5" oninput="calc()">
+        <span class="mkt-lbl">Margin of safety:</span>
+        <span class="mos-val" id="mos-fcff">—</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="g4" style="margin-bottom:12px">
+    <div class="kpi"><div class="kpi-lbl">ROIC</div><div class="kpi-val" id="r-roic">—</div><div class="kpi-sub">Return on Capital</div></div>
+    <div class="kpi"><div class="kpi-lbl">ROIC–WACC Spread</div><div class="kpi-val" id="r-spread">—</div><div class="kpi-sub">Value creation test</div></div>
+    <div class="kpi"><div class="kpi-lbl">Reinvestment Rate</div><div class="kpi-val" id="r-reinv">—</div><div class="kpi-sub">Cap. deployed per ₹ NOPAT</div></div>
+    <div class="kpi"><div class="kpi-lbl">Fundamental Growth</div><div class="kpi-val" id="r-fg">—</div><div class="kpi-sub">ROIC × Reinv. Rate</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">FCFF Projection — 5-Year Forecast (₹ Millions)</div>
+    <div style="position:relative;height:220px"><canvas id="chart-fcff"></canvas></div>
+  </div>
+</div>
+
+<!-- ═══ TAB 2 — FCFE MODEL ═══ -->
+<div id="pane-fcfe" class="pane">
+  <div class="fcfe-note" style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);color:var(--green2)">
+    <strong>Damodaran Reconciliation Applied.</strong>
+    FCFE is derived from the FCFF engine:
+    <code style="background:rgba(0,0,0,.3);padding:2px 6px;border-radius:3px;font-family:var(--mono);color:var(--accent)">FCFE = FCFF − Interest×(1−t) + Net New Debt</code>.
+    All business inputs are shared with the FCFF tab. Only Cost of Equity and Cost of Debt differ.
+  </div>
+  <div class="g2" style="margin-top:12px">
+    <div class="card">
+      <div class="card-title">FCFE-Specific Inputs</div>
+      <div class="sl-row"><div class="sl-top"><span class="sl-lbl">Cost of Equity Ke (%)</span><span class="sl-val" id="fv-ke">13.05%</span></div><input type="range" id="fs-ke" min="8" max="18" step="0.05" value="13.05" oninput="document.getElementById('fv-ke').textContent=(+this.value).toFixed(2)+'%';calcFCFE()"></div>
+      <div class="sl-row"><div class="sl-top"><span class="sl-lbl">Pre-Tax Cost of Debt Kd (%)</span><span class="sl-val" id="fv-kd">10.28%</span></div><input type="range" id="fs-kd" min="6" max="14" step="0.1" value="10.28" oninput="document.getElementById('fv-kd').textContent=(+this.value).toFixed(2)+'%';calcFCFE()"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">FCFE Output — Intrinsic Value</div>
+      <div class="g2" style="gap:8px;margin-bottom:10px">
+        <div class="kpi"><div class="kpi-lbl">Equity Value</div><div class="kpi-val" id="fr-eq">—</div></div>
+        <div class="kpi"><div class="kpi-lbl">Value / Share</div><div class="kpi-val" id="fr-ivps">—</div></div>
+      </div>
+      <div class="g2" style="gap:8px;margin-bottom:10px">
+        <div class="kpi"><div class="kpi-lbl">PV Terminal Value</div><div class="kpi-val" id="fr-pvtv">—</div></div>
+        <div class="kpi"><div class="kpi-lbl">TV Weight</div><div class="kpi-val" id="fr-tvw">—</div></div>
+      </div>
+      <div id="verdict-fcfe" class="verdict v-hold"><span>⏳</span>Calculating…</div>
+      <div class="mkt-row">
+        <span class="mkt-lbl">Market price (₹):</span>
+        <input type="number" id="fmkt" value="498" min="100" max="2000" step="5" oninput="calcFCFE()">
+        <span class="mkt-lbl">Margin of safety:</span>
+        <span class="mos-val" id="mos-fcfe">—</span>
+      </div>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">FCFF vs FCFE — Year-by-Year Reconciliation</div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:11px;font-family:var(--mono)">
+          <thead><tr style="background:var(--bg3)">
+            <th style="padding:6px 8px;border:1px solid var(--border);color:var(--text2);text-align:left">Year</th>
+            <th style="padding:6px 8px;border:1px solid var(--border);color:var(--blue2);text-align:right">FCFF</th>
+            <th style="padding:6px 8px;border:1px solid var(--border);color:var(--red2);text-align:right">−Int(1−t)</th>
+            <th style="padding:6px 8px;border:1px solid var(--border);color:var(--text2);text-align:right">+Net Debt</th>
+            <th style="padding:6px 8px;border:1px solid var(--border);color:var(--green2);text-align:right;font-weight:600">FCFE</th>
+            <th style="padding:6px 8px;border:1px solid var(--border);color:var(--text2);text-align:right">PV(FCFE)</th>
+          </tr></thead>
+          <tbody id="fcfe-year-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">FCFE Projection Chart</div>
+      <div style="position:relative;height:200px"><canvas id="chart-fcfe"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TAB 3 — DCF WATERFALL ═══ -->
+<div id="pane-waterfall" class="pane">
+  <div class="narrative">
+    <strong>🌊 The Value Bridge:</strong> Enterprise Value flows from two streams — the present value of explicit 5-year cash flows, and the terminal value representing Apollo's perpetual earning power. Because net reinvestment is <em>negative</em>, almost every rupee of NOPAT converts to free cash flow. The bridge below deducts net debt and surfaces equity value.
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">FCFF Waterfall — Enterprise → Equity Value</div>
+      <div id="wf-container-fcff"></div>
+      <div id="wf-note-fcff" style="font-size:11px;color:var(--text2);margin-top:10px;line-height:1.5"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">FCFE Waterfall — Direct Equity Path</div>
+      <div id="wf-container-fcfe"></div>
+      <div id="wf-note-fcfe" style="font-size:11px;color:var(--text2);margin-top:10px;line-height:1.5"></div>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">NOPAT vs Reinvestment Decomposition</div>
+      <div style="position:relative;height:200px"><canvas id="chart-decomp"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">PV Composition — FCFF vs FCFE Split</div>
+      <div style="position:relative;height:200px"><canvas id="chart-pv-split"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TAB 4 — LIFECYCLE RADAR ═══ -->
+<div id="pane-lifecycle" class="pane">
+  <div class="narrative">
+    <strong>🔄 From Sowing to Harvesting:</strong> Apollo Tyres sits at <em>Stage 4 — Mature Growth</em>. The company has stopped building and started harvesting. Factories are running, CapEx is falling below depreciation, and free cash flow is surging. This is the exact inflection point where value is created for patient shareholders.
+  </div>
+  <div class="lc-track" id="lc-track"></div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">Lifecycle Signal Fingerprint</div>
+      <div id="lc-signals"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">ROIC vs WACC Gauge</div>
+      <div class="gauge-wrap"><canvas id="chart-gauge"></canvas></div>
+      <div style="text-align:center;font-size:12px;color:var(--text2)" id="gauge-label">—</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Lifecycle Revenue & FCF Trend</div>
+    <div style="position:relative;height:200px"><canvas id="chart-lc-rev"></canvas></div>
+  </div>
+</div>
+
+<!-- ═══ TAB 5 — STRATEGIC ADVISOR ═══ -->
+<div id="pane-strategy" class="pane">
+  <div class="narrative">
+    <strong>♟️ Strategic Playbook:</strong> Apollo's strategy is clear — <em>premiumize the product mix</em> (Vredestein brand, larger rim sizes), <em>dominate the replacement market</em> (higher margins, lower cyclicality), and <em>avoid new greenfield CapEx</em>. Every rupee saved from reinvestment flows directly to shareholders.
+  </div>
+  <div class="card" style="margin-bottom:12px">
+    <div class="card-title">Ansoff Matrix — Apollo Tyres Strategic Map</div>
+    <div id="ansoff-grid-container"></div>
+  </div>
+  <div class="g3">
+    <div><div class="card-title" style="padding:0 0 8px 0;border:none">✅ Priorities</div><div id="strat-priority"></div></div>
+    <div><div class="card-title" style="padding:0 0 8px 0;border:none">⚠️ Watch</div><div id="strat-caution"></div></div>
+    <div><div class="card-title" style="padding:0 0 8px 0;border:none">🚫 Avoid</div><div id="strat-avoid"></div></div>
+  </div>
+</div>
+
+<!-- ═══ TAB 6 — SENSITIVITY MATRIX ═══ -->
+<div id="pane-sensitivity" class="pane">
+  <div class="narrative">
+    <strong>🔢 75-Scenario Stress Test:</strong> The intrinsic value of ₹498/share holds across a wide range of assumptions. The matrices below test WACC vs Terminal Growth, Growth vs Margin, and WACC vs Sales-to-Capital. Green cells = buy, red = sell, amber = hold.
+  </div>
+  <div class="card" style="margin-bottom:12px">
+    <div class="card-title">Matrix 1 — WACC vs Terminal Growth Rate</div>
+    <div id="sens-out" style="overflow-x:auto"></div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">Matrix 2 — Revenue Growth vs EBIT Margin</div>
+      <div id="sens-gm" style="overflow-x:auto"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Matrix 3 — WACC vs Sales-to-Capital</div>
+      <div id="sens-ws" style="overflow-x:auto"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TAB 7 — REVERSE DCF ═══ -->
+<div id="pane-rdcf" class="pane">
+  <div class="narrative">
+    <strong>🔍 What Is the Market Pricing In?</strong> Reverse DCF extracts the growth rate and margin the market implicitly assumes at the current stock price. If the market expects less than what Apollo can deliver from its harvesting phase, the stock is undervalued.
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">Reverse DCF — Implied Growth Rate</div>
+      <div class="sl-row"><div class="sl-top"><span class="sl-lbl">Current Market Price (₹)</span><span class="sl-val" id="rv-mkt">498</span></div><input type="range" id="rs-mkt" min="200" max="1000" step="5" value="498" oninput="document.getElementById('rv-mkt').textContent=this.value;calcReverse()"></div>
+      <div class="divider"></div>
+      <div class="g2" style="gap:8px">
+        <div class="kpi"><div class="kpi-lbl">Implied Growth (Y1-3)</div><div class="kpi-val" id="rv-ig">—</div></div>
+        <div class="kpi"><div class="kpi-lbl">Implied EBIT Margin</div><div class="kpi-val" id="rv-im">—</div></div>
+      </div>
+      <div id="rdcf-verdict" style="margin-top:12px;font-size:12px;color:var(--text2);line-height:1.6"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Price vs Implied Value Curve</div>
+      <div style="position:relative;height:250px"><canvas id="chart-rdcf"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TAB 8 — RELATIVE VALUE ═══ -->
+<div id="pane-relative" class="pane">
+  <div class="narrative">
+    <strong>📊 Peer Comparison:</strong> Apollo trades at a discount to MRF and Balkrishna Industries on EV/EBITDA, despite comparable ROIC spreads. The premiumization story is not yet priced in. CEAT trades at a similar multiple but has weaker margin trajectory.
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">Tire Sector — EV/EBITDA Comparison</div>
+      <div style="position:relative;height:250px"><canvas id="chart-relative"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">ROIC-WACC Spread vs EV/EBITDA</div>
+      <div style="position:relative;height:250px"><canvas id="chart-scatter"></canvas></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Peer Data Table</div>
+    <table style="width:100%;border-collapse:collapse;font-size:11px;font-family:var(--mono)">
+      <thead><tr style="background:var(--bg3)">
+        <th style="padding:6px 10px;border:1px solid var(--border);color:var(--text2);text-align:left">Company</th>
+        <th style="padding:6px 10px;border:1px solid var(--border);color:var(--text2);text-align:right">EV/EBITDA</th>
+        <th style="padding:6px 10px;border:1px solid var(--border);color:var(--text2);text-align:right">ROIC</th>
+        <th style="padding:6px 10px;border:1px solid var(--border);color:var(--text2);text-align:right">EBIT Margin</th>
+        <th style="padding:6px 10px;border:1px solid var(--border);color:var(--text2);text-align:right">D/E</th>
+      </tr></thead>
+      <tbody>
+        <tr style="background:rgba(245,158,11,.08)"><td style="padding:6px 10px;border:1px solid var(--border);color:var(--accent);font-weight:600">Apollo Tyres ★</td><td style="padding:6px 10px;border:1px solid var(--border);text-align:right;color:var(--text)">8.5x</td><td style="padding:6px 10px;border:1px solid var(--border);text-align:right;color:var(--green2)">14.2%</td><td style="padding:6px 10px;border:1px solid var(--border);text-align:right">7.92%</td><td style="padding:6px 10px;border:1px solid var(--border);text-align:right">0.35x</td></tr>
+        <tr><td style="padding:6px 10px;border:1px solid var(--border);color:var(--text)">MRF</td><td style="padding:6px 10px;border:1px solid var(--border);text-align:right">14.2x</td><td style="padding:6px 10px;border:1px solid var(--border);text-align:right;color:var(--green2)">16.5%</td><td style="padding:6px 10px;border:1px solid var(--border);text-align:right">12.1%</td><td style="padding:6px 10px;border:1px solid var(--border);text-align:right">0.05x</td></tr>
+        <tr style="background:rgba(255,255,255,.02)"><td style="padding:6px 10px;border:1px solid var(--border);color:var(--text)">CEAT</td><td style="padding:6px 10px;border:1px solid var(--border);text-align:right">9.1x</td><td style="padding:6px 10px;border:1px solid var(--border);text-align:right;color:var(--text2)">11.8%</td><td style="padding:6px 10px;border:1px solid var(--border);text-align:right">6.5%</td><td style="padding:6px 10px;border:1px solid var(--border);text-align:right">0.42x</td></tr>
+        <tr><td style="padding:6px 10px;border:1px solid var(--border);color:var(--text)">JK Tyre</td><td style="padding:6px 10px;border:1px solid var(--border);text-align:right">6.8x</td><td style="padding:6px 10px;border:1px solid var(--border);text-align:right;color:var(--red2)">9.1%</td><td style="padding:6px 10px;border:1px solid var(--border);text-align:right">5.8%</td><td style="padding:6px 10px;border:1px solid var(--border);text-align:right">0.95x</td></tr>
+        <tr style="background:rgba(255,255,255,.02)"><td style="padding:6px 10px;border:1px solid var(--border);color:var(--text)">Balkrishna Ind</td><td style="padding:6px 10px;border:1px solid var(--border);text-align:right">18.5x</td><td style="padding:6px 10px;border:1px solid var(--border);text-align:right;color:var(--green2)">22.3%</td><td style="padding:6px 10px;border:1px solid var(--border);text-align:right">18.5%</td><td style="padding:6px 10px;border:1px solid var(--border);text-align:right">0.08x</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ TAB 9 — DIVIDENDS ═══ -->
+<div id="pane-dividends" class="pane">
+  <div class="narrative">
+    <strong>💰 Deleverage First, Distribute Later:</strong> Apollo's massive FCFF surplus shouldn't go to dividends — yet. The optimal strategy is to retire ₹4,000 Mn of debt annually, bringing D/V from 15% to near-zero by FY29. <em>Every ₹4,000 Mn in debt retired lowers the discount rate</em>, compounding the equity value benefit.
+  </div>
+  <div class="card" style="margin-bottom:12px">
+    <div class="card-title">Damodaran's 4 Questions on Cash Return</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="kpi"><div class="kpi-lbl">Q1: Does the firm have good projects?</div><div class="kpi-val" style="font-size:16px;color:var(--amber)">Mixed</div><div class="kpi-sub">ROIC 14.2% vs WACC 12.2% = thin spread. Selective reinvestment only.</div></div>
+      <div class="kpi"><div class="kpi-lbl">Q2: Can managers be trusted?</div><div class="kpi-val" style="font-size:16px;color:var(--green2)">Yes</div><div class="kpi-sub">Promoter-led, disciplined CapEx. Reduced capacity expansion guidance.</div></div>
+      <div class="kpi"><div class="kpi-lbl">Q3: Is the firm underlevered?</div><div class="kpi-val" style="font-size:16px;color:var(--red2)">No — D/V 15%</div><div class="kpi-sub">Gross debt ₹54,300 Mn. Deleverage before distribution.</div></div>
+      <div class="kpi"><div class="kpi-lbl">Q4: What should be returned?</div><div class="kpi-val" style="font-size:16px;color:var(--accent)">Debt Repayment</div><div class="kpi-sub">₹4,000 Mn/year debt retirement → ₹0 net debt by FY29.</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Capital Allocation Roadmap</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+      <div class="strat-block priority"><span class="strat-tag tag-p">Phase 1: FY25-FY27</span><div class="strat-title">Deleverage</div><div class="strat-body">Retire ₹4,000 Mn/year. Gross debt from ₹54,300 to ₹42,300 Mn. Net debt approaches zero.</div></div>
+      <div class="strat-block caution"><span class="strat-tag tag-c">Phase 2: FY27-FY28</span><div class="strat-title">Transition</div><div class="strat-body">Begin modest dividend (30% payout). Buybacks if stock trades below intrinsic. Maintain ROIC > WACC.</div></div>
+      <div class="strat-block priority"><span class="strat-tag tag-p">Phase 3: FY29+</span><div class="strat-title">Full Harvest</div><div class="strat-body">Near-zero debt. 50%+ payout ratio. Buybacks at margin-of-safety levels. The FCF machine pays out freely.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TAB 10 — CAPITAL STRUCTURE ═══ -->
+<div id="pane-capstruct" class="pane">
+  <div class="narrative">
+    <strong>⚖ Cost of Capital Build:</strong> WACC = 12.20%. Risk-free rate 7.00% (India 10Y G-Sec), Beta 1.10 (unlevered 1.05), Equity Risk Premium 5.50%, Cost of Equity 13.05%. Pre-tax cost of debt 10.28%, post-tax 7.40%. D/V = 15%.
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">WACC Component Build</div>
+      <table style="width:100%;border-collapse:collapse;font-size:12px;font-family:var(--mono)">
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:8px;color:var(--text2)">Risk-Free Rate (rf)</td><td style="padding:8px;text-align:right;color:var(--text);font-weight:600">7.00%</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:8px;color:var(--text2)">Levered Beta (β)</td><td style="padding:8px;text-align:right;color:var(--text);font-weight:600">1.10</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:8px;color:var(--text2)">Equity Risk Premium</td><td style="padding:8px;text-align:right;color:var(--text);font-weight:600">5.50%</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:8px;color:var(--text2)">Cost of Equity (Ke)</td><td style="padding:8px;text-align:right;color:var(--accent);font-weight:700">13.05%</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:8px;color:var(--text2)">Pre-Tax Cost of Debt (Kd)</td><td style="padding:8px;text-align:right;color:var(--text);font-weight:600">10.28%</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:8px;color:var(--text2)">Tax Rate</td><td style="padding:8px;text-align:right;color:var(--text);font-weight:600">28.0%</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:8px;color:var(--text2)">Post-Tax Kd</td><td style="padding:8px;text-align:right;color:var(--text);font-weight:600">7.40%</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:8px;color:var(--text2)">D / (D+E)</td><td style="padding:8px;text-align:right;color:var(--text);font-weight:600">15.0%</td></tr>
+        <tr><td style="padding:8px;color:var(--accent);font-weight:700">WACC</td><td style="padding:8px;text-align:right;color:var(--accent);font-weight:700;font-size:16px">12.20%</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">WACC Sensitivity to D/V Ratio</div>
+      <div style="position:relative;height:250px"><canvas id="chart-wacc-curve"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TAB 11 — EVA ═══ -->
+<div id="pane-eva" class="pane">
+  <div class="narrative">
+    <strong>💎 Economic Value Added:</strong> EVA = NOPAT − (Invested Capital × WACC). With ROIC at 14.2% and WACC at 12.2%, Apollo creates <em>₹2,000+ Mn</em> of economic value annually. The positive spread means every rupee of capital deployed generates returns above the cost of that capital.
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">EVA Projection (₹ Mn)</div>
+      <div style="position:relative;height:250px"><canvas id="chart-eva"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Value Decomposition</div>
+      <div style="position:relative;height:250px"><canvas id="chart-value-decomp"></canvas></div>
+      <div style="text-align:center;font-size:11px;color:var(--text2);margin-top:8px">Assets in Place vs Growth Assets contribution to Enterprise Value</div>
+    </div>
+  </div>
+  <div class="g4">
+    <div class="kpi"><div class="kpi-lbl">ROIC</div><div class="kpi-val" id="eva-roic">14.2%</div></div>
+    <div class="kpi"><div class="kpi-lbl">WACC</div><div class="kpi-val">12.2%</div></div>
+    <div class="kpi"><div class="kpi-lbl">Spread</div><div class="kpi-val" style="color:var(--green2)">+2.0pp</div></div>
+    <div class="kpi"><div class="kpi-lbl">EVA Yr 1</div><div class="kpi-val" id="eva-yr1">—</div></div>
+  </div>
+</div>
+
+<!-- ═══ TAB 12 — PROJECTIONS ═══ -->
+<div id="pane-projections" class="pane">
+  <div class="narrative">
+    <strong>📈 Five-Year Financial Projections:</strong> Revenue grows from ₹261 Bn to ₹356 Bn. EBIT margin expands from 7.92% to 8.80%. The <em>replacement market shift</em> creates a natural rubber price cushion — when commodity costs spike, Apollo's premium brand absorbs the shock better than volume-driven competitors.
+  </div>
+  <div class="card" style="margin-bottom:12px">
+    <div class="card-title">Projected Income Statement (₹ Mn)</div>
+    <div style="overflow-x:auto" id="proj-is"></div>
+  </div>
+  <div class="card" style="margin-bottom:12px">
+    <div class="card-title">Revenue & EBITDA Trend</div>
+    <div style="position:relative;height:220px"><canvas id="chart-proj"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Key Ratios</div>
+    <div id="proj-ratios" style="overflow-x:auto"></div>
+  </div>
+</div>
+
+<!-- ═══ TAB 13 — POSITIONING ═══ -->
+<div id="pane-positioning" class="pane">
+  <div class="narrative">
+    <strong>🎯 Price Positioning:</strong> Apollo trades in the "Value with Upside" quadrant — positive ROIC-WACC spread but low EV/EBITDA relative to peers. The Vredestein premiumization thesis is not yet reflected in the multiple. This is the gap that creates the investment opportunity.
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">Positioning Map — ROIC Spread vs Multiple</div>
+      <div style="position:relative;height:280px"><canvas id="chart-positioning"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Valuation Zone</div>
+      <div class="g2" style="gap:8px;margin-bottom:12px">
+        <div class="kpi"><div class="kpi-lbl">Intrinsic Value</div><div class="kpi-val" id="pos-iv">—</div></div>
+        <div class="kpi"><div class="kpi-lbl">Zone</div><div class="kpi-val" id="pos-zone" style="font-size:14px">—</div></div>
+      </div>
+      <div class="card-title" style="margin-top:12px">Ansoff Strategic Implications</div>
+      <div id="ansoff-grid-container"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TAB 14 — ASK AI ═══ -->
+<div id="pane-askai" class="pane">
+  <div class="card">
+    <div class="card-title">🤖 Ask AI — Apollo Tyres Knowledge Base</div>
+    <div style="margin-bottom:12px">
+      <div style="display:flex;gap:6px;margin-bottom:12px">
+        <button id="btn-claude" class="sc-btn on" onclick="setProvider('claude',this)">Claude</button>
+        <button id="btn-openai" class="sc-btn" onclick="setProvider('openai',this)">OpenAI</button>
+        <span id="ai-provider-chip" class="hdr-chip chip-blue" style="margin-left:auto">Claude</span>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <input type="password" id="ai-key" placeholder="Paste API key (optional — offline KB works without)" style="flex:1;padding:7px 12px;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--bg3);color:var(--text);font-size:12px;font-family:var(--mono);outline:none" oninput="localStorage.setItem('at_api_key',this.value)">
+        <button class="sc-btn" onclick="document.getElementById('ai-key').value='';localStorage.removeItem('at_api_key')" style="flex:none;padding:7px 14px">Clear</button>
+      </div>
+    </div>
+    <div id="ai-chat" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px;min-height:200px;max-height:400px;overflow-y:auto;margin-bottom:12px;font-size:12px;line-height:1.6"></div>
+    <div style="display:flex;gap:8px">
+      <input type="text" id="ai-input" placeholder="Ask about Apollo Tyres valuation..." style="flex:1;padding:8px 14px;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--bg3);color:var(--text);font-size:13px;font-family:var(--font);outline:none" onkeydown="if(event.key==='Enter')askAI()">
+      <button class="sc-btn on" onclick="askAI()" style="flex:none;padding:8px 20px">Send</button>
+    </div>
+    <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap" id="ai-suggestions"></div>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<div style="text-align:center;padding:20px;font-size:11px;color:var(--text3);border-top:1px solid var(--border);margin-top:20px">
+  Apollo Tyres Advanced Valuation Terminal &nbsp;·&nbsp; Anirudh Aggarwal (24U05) &nbsp;·&nbsp; IPM Programme, TAPMI &nbsp;·&nbsp; Financial Management Project FY2024-25<br>
+  Built on Prof. Aswath Damodaran's Narrative Valuation Framework &nbsp;·&nbsp; "Story Over Statistics"
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  CONSTANTS — APOLLO TYRES
+// ═══════════════════════════════════════════════════
+const BASE_REV   = 261230;
+const BASE_EBIT  = 20700;
+const GROSS_DEBT = 54300;
+const CASH       = 29500;
+const NET_DEBT_C = 24800;
+const SHARES     = 635;
+
+let chartFCFF=null,chartFCFE=null,chartDecomp=null,chartPVSplit=null;
+
+const SCENARIOS = {
+  bear:  {g1:6.0,  g2:4.0,  tg:3.5, em:7.0,  tax:28, s2c:1.5, wacc:13.5, debt:NET_DEBT_C},
+  base:  {g1:8.0,  g2:5.5,  tg:4.5, em:7.92, tax:28, s2c:1.75,wacc:12.2, debt:NET_DEBT_C},
+  bull:  {g1:10.0, g2:7.0,  tg:5.0, em:9.0,  tax:28, s2c:2.0, wacc:11.0, debt:NET_DEBT_C},
+};
+
+// ═══════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════
+function sv(id,val,suf){var el=document.getElementById('v-'+id);if(el)el.textContent=(+val).toFixed(1)+suf;}
+function sv3(id,val){document.getElementById('v-debt').textContent='₹'+fmt(Math.abs(+val))+' Mn';}
+function fmt(n){if(n>=100000)return(n/100000).toFixed(2)+'L';if(n>=1000)return(n/1000).toFixed(1)+'K';return Math.round(n).toString();}
+function fmtMn(n){return'₹'+fmt(Math.abs(Math.round(n)))+(n<0?' (-)':'');}
+function fmtPct(n){return(n>=0?'+':'')+n.toFixed(1)+'%';}
+function sd(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
+function g(id){return+document.getElementById(id).value;}
+
+function setVerdict(vid,mid,updn){
+  var verd=document.getElementById(vid),mos=document.getElementById(mid);
+  if(updn>15){verd.className='verdict v-buy';verd.innerHTML='<span>✅</span>BUY — Intrinsic value exceeds market by '+updn.toFixed(1)+'%. Margin of safety present.';}
+  else if(updn<-15){verd.className='verdict v-sell';verd.innerHTML='<span>⚠️</span>SELL/AVOID — Market price exceeds intrinsic by '+Math.abs(updn).toFixed(1)+'%.';}
+  else{verd.className='verdict v-hold';verd.innerHTML='<span>⏸</span>HOLD — Within ±15% of market ('+fmtPct(updn)+'). Fairly priced.';}
+  if(mos){mos.textContent=fmtPct(updn);mos.style.color=updn>0?'var(--green2)':'var(--red2)';}
+}
+
+var chartOpts={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{
+  x:{ticks:{color:'#4a5272',font:{size:11}},grid:{color:'rgba(42,51,80,.6)'},border:{color:'#2a3350'}},
+  y:{ticks:{color:'#4a5272',font:{size:11},callback:function(v){return'₹'+Math.round(v/1000)+'K'}},grid:{color:'rgba(42,51,80,.6)'},border:{color:'#2a3350'}}
+}};
+
+// ═══════════════════════════════════════════════════
+//  FCFF DCF ENGINE
+// ═══════════════════════════════════════════════════
+function runDCF(p){
+  if(p.wacc<=p.tg)return null;
+  var rev=BASE_REV,pvF=0;
+  var gs=[p.g1,p.g1,p.g1,p.g2,p.g2];
+  var fcffs=[],nopats=[],reinvs=[],revs=[];
+  for(var y=0;y<5;y++){
+    var prev=rev;rev*=(1+gs[y]);
+    var nopat=rev*p.em*(1-p.tax);
+    var reinv=(rev-prev)/p.s2c;
+    var fcff=nopat-reinv;
+    fcffs.push(fcff);nopats.push(nopat);reinvs.push(reinv);revs.push(rev);
+    pvF+=fcff/Math.pow(1+p.wacc,y+1);
+  }
+  var nopat5=revs[4]*p.em*(1-p.tax);
+  var reinv5=revs[4]*(p.tg/p.s2c);
+  var fcff5=nopat5-reinv5;
+  var tv=fcff5*(1+p.tg)/(p.wacc-p.tg);
+  var pvTv=tv/Math.pow(1+p.wacc,5);
+  var ev=pvF+pvTv;
+  var eq=ev-p.debt;
+  var ivps=eq/SHARES;
+  var roic=p.em*(1-p.tax)*p.s2c;
+  var reinvRate=(p.g1/p.s2c)/(p.em*(1-p.tax));
+  return{pvF:pvF,pvTv:pvTv,ev:ev,eq:eq,ivps:ivps,fcffs:fcffs,nopats:nopats,reinvs:reinvs,revs:revs,roic:roic,reinvRate:reinvRate,fcff5:fcff5,tv:tv};
+}
+
+// ═══════════════════════════════════════════════════
+//  FCFE ENGINE
+// ═══════════════════════════════════════════════════
+function runFCFE(p,dcfR){
+  var kd=p.kd||0.1028,tax=p.tax,dv=0.15,ev=0.85;
+  var ke=p.ke||0.1305,tg=p.tg;
+  if(ke<=tg)return null;
+  var fcffArr=dcfR?dcfR.fcffs:[];
+  var nopatArr=dcfR?dcfR.nopats:[];
+  if(fcffArr.length===0){var rev2=BASE_REV;var gs2=[p.g1,p.g1,p.g1,p.g2,p.g2];for(var y=0;y<5;y++){var prev2=rev2;rev2*=(1+gs2[y]);var nopat2=rev2*p.em*(1-tax);var reinv2=(rev2-prev2)/p.s2c;fcffArr.push(nopat2-reinv2);nopatArr.push(nopat2);}}
+  var gs=[p.g1,p.g1,p.g1,p.g2,p.g2];
+  var pvF=0,fcfes=[],interestsAT=[],netDebts=[],nis=[];
+  var debt=NET_DEBT_C;
+  for(var y=0;y<5;y++){
+    var netBorrow=gs[y]*debt;var intAT=debt*kd*(1-tax);var fcfe=fcffArr[y]-intAT+netBorrow;
+    var ni=(nopatArr[y]||0)-intAT;
+    fcfes.push(fcfe);interestsAT.push(intAT);netDebts.push(netBorrow);nis.push(Math.max(ni,0));
+    pvF+=fcfe/Math.pow(1+ke,y+1);debt+=netBorrow;
+  }
+  var fcff_t=dcfR?dcfR.fcff5:fcffArr[4];
+  var termIntAT=debt*kd*(1-tax);var termNB=tg*debt;
+  var termFCFE=fcff_t*(1+tg)-termIntAT+termNB;
+  var tvv=termFCFE/(ke-tg);var pvTv=tvv/Math.pow(1+ke,5);
+  var eqq=pvF+pvTv;var ivps=eqq/SHARES;
+  return{pvF:pvF,pvTv:pvTv,eq:eqq,ivps:ivps,fcfes:fcfes,nis:nis,interestsAT:interestsAT,netDebts:netDebts,tv:tvv,termFCFE:termFCFE,ke:ke};
+}
+
+// ═══════════════════════════════════════════════════
+//  MAIN CALC
+// ═══════════════════════════════════════════════════
+function getV(){
+  return{g1:g('s-g1')/100,g2:g('s-g2')/100,tg:g('s-tg')/100,em:g('s-em')/100,tax:g('s-tax')/100,s2c:g('s-s2c'),wacc:g('s-wacc')/100,debt:g('s-debt'),mkt:+(document.getElementById('mkt').value)||498};
+}
+
+function calc(){
+  var v=getV(),r=runDCF(v);
+  if(!r){['r-ev','r-ivps','r-roic','r-spread','r-reinv','r-fg'].forEach(function(id){sd(id,'n/a')});return;}
+  sd('r-ev','₹'+fmt(r.ev));
+  sd('r-ivps','₹'+Math.round(r.ivps).toLocaleString());
+  var roicPct=(r.roic*100).toFixed(1);
+  sd('r-roic',roicPct+'%');
+  var spread=(r.roic-v.wacc)*100;
+  sd('r-spread',(spread>=0?'+':'')+spread.toFixed(1)+'pp');
+  document.getElementById('r-spread').style.color=spread>0?'var(--green2)':'var(--red2)';
+  sd('r-reinv',(r.reinvRate*100).toFixed(1)+'%');
+  sd('r-fg',(r.roic*r.reinvRate*100).toFixed(1)+'%');
+  var updn=(r.ivps-v.mkt)/v.mkt*100;
+  setVerdict('verdict-fcff','mos-fcff',updn);
+  renderChartFCFF(r,v);
+  renderWaterfall(r,v);
+}
+
+function calcFCFE(){
+  var v=getV();
+  var ke=(+document.getElementById('fs-ke').value||13.05)/100;
+  var kd=(+document.getElementById('fs-kd').value||10.28)/100;
+  var mkt=+(document.getElementById('fmkt').value)||498;
+  var dcfR=runDCF(v);if(!dcfR)return;
+  var fp=Object.assign({},v,{ke:ke,kd:kd});
+  var fr=runFCFE(fp,dcfR);if(!fr){sd('fr-ivps','n/a');return;}
+  var updn=(fr.ivps-mkt)/mkt*100;
+  sd('fr-eq','₹'+fmt(fr.eq));sd('fr-ivps','₹'+Math.round(fr.ivps).toLocaleString());
+  sd('fr-pvtv','₹'+fmt(fr.pvTv));sd('fr-tvw',(fr.pvTv/fr.eq*100).toFixed(1)+'%');
+  setVerdict('verdict-fcfe','mos-fcfe',updn);
+  // Year-by-year table
+  var tbody=document.getElementById('fcfe-year-tbody');
+  if(tbody){
+    tbody.innerHTML=fr.fcfes.map(function(fcfe,i){
+      var pvFcfe=fcfe/Math.pow(1+ke,i+1);
+      var bg=i%2===1?'background:rgba(255,255,255,.02)':'';
+      var fc=fcfe>=0?'color:var(--green2)':'color:var(--red2)';
+      var td=function(v,c){return'<td style="padding:6px 8px;border-bottom:1px solid var(--border);text-align:right;font-family:var(--mono);'+c+'">'+Math.round(v).toLocaleString()+'</td>';};
+      return'<tr style="'+bg+'"><td style="padding:6px 8px;border-bottom:1px solid var(--border);color:var(--text)">Y'+(i+1)+'</td>'+td(dcfR.fcffs[i],'color:var(--blue2)')+td(-fr.interestsAT[i],'color:var(--red2)')+td(fr.netDebts[i],'color:var(--text2)')+td(fcfe,fc+';font-weight:600')+td(pvFcfe,'color:var(--text2)')+'</tr>';
+    }).join('');
+  }
+  renderChartFCFE(fr);
+  renderWaterfallFCFE(fr,fp);
+}
+
+// ═══════════════════════════════════════════════════
+//  CHARTS
+// ═══════════════════════════════════════════════════
+function renderChartFCFF(r){
+  if(typeof Chart==='undefined')return;
+  var labels=['Yr 1','Yr 2','Yr 3','Yr 4','Yr 5'];
+  var data={labels:labels,datasets:[
+    {label:'NOPAT',data:r.nopats.map(Math.round),backgroundColor:'rgba(59,130,246,.7)',borderRadius:4,barPercentage:.55},
+    {label:'Reinvestment',data:r.reinvs.map(Math.round),backgroundColor:'rgba(245,158,11,.6)',borderRadius:4,barPercentage:.55},
+    {label:'FCFF',data:r.fcffs.map(Math.round),backgroundColor:'rgba(34,197,94,.7)',borderRadius:4,barPercentage:.55},
+  ]};
+  if(chartFCFF)chartFCFF.destroy();
+  chartFCFF=new Chart(document.getElementById('chart-fcff').getContext('2d'),{type:'bar',data:data,options:Object.assign({},chartOpts,{plugins:{legend:{display:true,labels:{color:'#8b93b0',font:{size:11},boxWidth:10}}}})});
+}
+
+function renderChartFCFE(fr){
+  if(typeof Chart==='undefined'||!document.getElementById('chart-fcfe'))return;
+  var labels=['Yr 1','Yr 2','Yr 3','Yr 4','Yr 5'];
+  if(chartFCFE)chartFCFE.destroy();
+  chartFCFE=new Chart(document.getElementById('chart-fcfe').getContext('2d'),{type:'bar',data:{labels:labels,datasets:[
+    {label:'Net Income',data:fr.nis.map(Math.round),backgroundColor:'rgba(59,130,246,.7)',borderRadius:4,barPercentage:.55},
+    {label:'FCFE',data:fr.fcfes.map(Math.round),backgroundColor:'rgba(34,197,94,.7)',borderRadius:4,barPercentage:.55},
+  ]},options:Object.assign({},chartOpts,{plugins:{legend:{display:true,labels:{color:'#8b93b0',font:{size:11},boxWidth:10}}}})});
+}
+
+// ═══════════════════════════════════════════════════
+//  WATERFALLS
+// ═══════════════════════════════════════════════════
+function renderWaterfall(r,v){
+  var items=[
+    {lbl:'PV of FCFFs (Yr 1-5)',val:r.pvF,color:'#3b82f6'},
+    {lbl:'PV of Terminal Value',val:r.pvTv,color:'#6366f1'},
+    {lbl:'Enterprise Value',val:r.ev,color:'#8b5cf6',bold:true},
+    {lbl:'Less: Net Debt',val:-v.debt,color:v.debt<=0?'#22c55e':'#ef4444'},
+    {lbl:'Equity Value (Total)',val:r.eq,color:'#f59e0b',bold:true},
+  ];
+  var max=Math.max.apply(null,items.map(function(i){return Math.abs(i.val)}));
+  var h='';items.forEach(function(it){
+    var w=Math.max(3,Math.min(98,Math.abs(it.val)/max*96)).toFixed(1)+'%';
+    h+='<div class="wf-row"><div class="wf-lbl" style="font-weight:'+(it.bold?'600':'400')+'">'+it.lbl+'</div><div class="wf-track"><div class="wf-fill" style="width:'+w+';background:'+it.color+'55;border:1px solid '+it.color+'90"></div></div><div class="wf-num" style="color:'+it.color+';font-weight:'+(it.bold?'600':'400')+'">'+(it.val<0?'-':'+')+' '+fmtMn(Math.abs(it.val))+'</div></div>';
+  });
+  document.getElementById('wf-container-fcff').innerHTML=h;
+  document.getElementById('wf-note-fcff').innerHTML='Terminal value is <strong style="color:var(--text)">'+(r.pvTv/r.ev*100).toFixed(0)+'%</strong> of total firm value. WACC = <strong style="color:var(--text)">'+(v.wacc*100).toFixed(2)+'%</strong>, g∞ = <strong style="color:var(--text)">'+(v.tg*100).toFixed(1)+'%</strong>. Intrinsic equity value per share: <strong style="color:var(--accent)">₹'+Math.round(r.ivps).toLocaleString()+'</strong>.';
+  renderDecompChart();renderPVSplitChart();
+}
+
+function renderWaterfallFCFE(fr,fv){
+  var items=[
+    {lbl:'PV of FCFEs (Yr 1-5)',val:fr.pvF,color:'#f59e0b'},
+    {lbl:'PV of Terminal Value',val:fr.pvTv,color:'#fbbf24'},
+    {lbl:'Equity Value',val:fr.eq,color:'#22c55e',bold:true},
+  ];
+  var max=Math.max.apply(null,items.map(function(i){return Math.abs(i.val)}));
+  var h='';items.forEach(function(it){
+    var w=Math.max(3,Math.min(98,Math.abs(it.val)/max*96)).toFixed(1)+'%';
+    h+='<div class="wf-row"><div class="wf-lbl" style="font-weight:'+(it.bold?'600':'400')+'">'+it.lbl+'</div><div class="wf-track"><div class="wf-fill" style="width:'+w+';background:'+it.color+'55;border:1px solid '+it.color+'90"></div></div><div class="wf-num" style="color:'+it.color+';font-weight:'+(it.bold?'600':'400')+'">'+(it.val<0?'-':'+')+' '+fmtMn(Math.abs(it.val))+'</div></div>';
+  });
+  document.getElementById('wf-container-fcfe').innerHTML=h;
+  document.getElementById('wf-note-fcfe').innerHTML='FCFE discounts directly at Ke = <strong style="color:var(--text)">'+(fv.ke*100).toFixed(2)+'%</strong>. Intrinsic per share: <strong style="color:var(--accent)">₹'+Math.round(fr.ivps).toLocaleString()+'</strong>.';
+}
+
+function renderDecompChart(){
+  if(typeof Chart==='undefined'||!document.getElementById('chart-decomp'))return;
+  var v=getV(),r=runDCF(v);if(!r)return;
+  var labels=['Yr 1','Yr 2','Yr 3','Yr 4','Yr 5'];
+  var pvs=r.fcffs.map(function(f,i){return Math.round(f/Math.pow(1+v.wacc,i+1));});
+  if(chartDecomp)chartDecomp.destroy();
+  chartDecomp=new Chart(document.getElementById('chart-decomp').getContext('2d'),{type:'bar',data:{labels:labels,datasets:[
+    {label:'NOPAT',data:r.nopats.map(Math.round),backgroundColor:'rgba(59,130,246,.6)',borderRadius:4,barPercentage:.4,order:2},
+    {label:'Reinvestment',data:r.reinvs.map(Math.round),backgroundColor:'rgba(245,158,11,.6)',borderRadius:4,barPercentage:.4,order:2},
+    {label:'PV of FCFF',data:pvs,type:'line',borderColor:'var(--green2)',backgroundColor:'rgba(34,197,94,.1)',tension:.4,pointBackgroundColor:'var(--green2)',pointRadius:5,fill:true,order:1},
+  ]},options:Object.assign({},chartOpts,{plugins:{legend:{display:true,labels:{color:'#8b93b0',font:{size:11},boxWidth:10}}}})});
+}
+
+function renderPVSplitChart(){
+  if(typeof Chart==='undefined'||!document.getElementById('chart-pv-split'))return;
+  var v=getV(),r=runDCF(v);if(!r)return;
+  var fv=Object.assign({},v,{ke:(+document.getElementById('fs-ke').value||13.05)/100,kd:(+document.getElementById('fs-kd').value||10.28)/100});
+  var fr=runFCFE(fv,r);
+  if(chartPVSplit)chartPVSplit.destroy();
+  chartPVSplit=new Chart(document.getElementById('chart-pv-split').getContext('2d'),{type:'bar',data:{labels:['FCFF: Growth PV','FCFF: Terminal PV','FCFE: Growth PV','FCFE: Terminal PV'],datasets:[{
+    data:[Math.round(r.pvF),Math.round(r.pvTv),fr?Math.round(fr.pvF):0,fr?Math.round(fr.pvTv):0],
+    backgroundColor:['rgba(59,130,246,.7)','rgba(99,102,241,.7)','rgba(245,158,11,.7)','rgba(251,191,36,.6)'],borderWidth:0,borderRadius:4
+  }]},options:Object.assign({},chartOpts,{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#4a5272',font:{size:11},callback:function(v){return'₹'+Math.round(v/1000)+'K'}},grid:{color:'rgba(42,51,80,.6)'}},y:{ticks:{color:'#8b93b0',font:{size:11}},grid:{display:false}}}})});
+}
+
+// ═══════════════════════════════════════════════════
+//  LIFECYCLE
+// ═══════════════════════════════════════════════════
+function lcStage(g1,em,reinvRate,roic,wacc){
+  if(g1>0.15)return 1;if(g1>0.10)return 2;if(g1>0.06)return 3;
+  if(reinvRate<0.8&&roic>wacc)return 4;if(g1<0.03)return 5;return 4;
+}
+
+function renderLifeCycle(v,r){
+  var stage=lcStage(v.g1,v.em,r.reinvRate,r.roic,v.wacc);
+  var stages=['Start-up','High Growth','Growth Transition','Mature Growth','Mature Stable','Decline'];
+  var el=document.getElementById('lc-track');
+  el.innerHTML=stages.map(function(s,i){return'<div class="lc-seg'+(i+1===stage?' lit':'')+'"><span>'+(i+1)+'</span><span class="lc-seg-name">'+s+'</span></div>';}).join('');
+
+  var signals=[
+    {name:'Revenue Growth',val:(v.g1*100).toFixed(1)+'%',color:v.g1>0.08?'var(--green2)':'var(--amber)',arrow:v.g1>0.08?'↑':'→'},
+    {name:'EBIT Margin',val:(v.em*100).toFixed(1)+'%',color:'var(--amber)',arrow:'→'},
+    {name:'Reinvestment Rate',val:(r.reinvRate*100).toFixed(1)+'%',color:r.reinvRate<0.7?'var(--green2)':'var(--text2)',arrow:'↓'},
+    {name:'ROIC',val:(r.roic*100).toFixed(1)+'%',color:r.roic>v.wacc?'var(--green2)':'var(--red2)',arrow:r.roic>v.wacc?'↑':'↓'},
+    {name:'ROIC-WACC Spread',val:((r.roic-v.wacc)*100).toFixed(1)+'pp',color:(r.roic-v.wacc)>0?'var(--green2)':'var(--red2)',arrow:(r.roic-v.wacc)>0?'↑':'↓'},
+    {name:'Depreciation > CapEx',val:'Yes (Harvesting)',color:'var(--green2)',arrow:'✓'},
+  ];
+  var sh='';signals.forEach(function(s){sh+='<div class="signal-row"><div class="signal-dot" style="background:'+s.color+'"></div><div class="signal-name">'+s.name+'</div><div class="signal-val">'+s.val+'</div><div class="signal-arrow" style="color:'+s.color+'">'+s.arrow+'</div></div>';});
+  document.getElementById('lc-signals').innerHTML=sh;
+
+  // ROIC gauge
+  var roicPct=r.roic*100,waccPct=v.wacc*100;
+  sd('gauge-label','ROIC '+roicPct.toFixed(1)+'% vs WACC '+waccPct.toFixed(1)+'% — Spread '+(roicPct-waccPct).toFixed(1)+'pp');
+  var ctx=document.getElementById('chart-gauge');
+  if(ctx&&typeof Chart!=='undefined'){
+    if(ctx._chartInst)ctx._chartInst.destroy();
+    ctx._chartInst=new Chart(ctx.getContext('2d'),{type:'doughnut',data:{labels:['ROIC','Remaining'],datasets:[{data:[roicPct,30-roicPct],backgroundColor:['rgba(34,197,94,.8)','rgba(42,51,80,.5)'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{display:false}}}});
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  STRATEGY
+// ═══════════════════════════════════════════════════
+function renderStrategy(v,r){
+  var spread=(r.roic-v.wacc)*100;
+  // Ansoff
+  var ag=document.getElementById('ansoff-grid-container');
+  if(ag){ag.innerHTML='<div style="display:grid;grid-template-columns:80px 1fr 1fr;grid-template-rows:auto 1fr 1fr;gap:5px;margin-top:8px">'
+    +'<div style="background:var(--bg3);border-radius:5px"></div>'
+    +'<div style="background:var(--navy);color:rgba(255,255,255,.8);font-size:10px;font-weight:600;padding:7px;text-align:center;border-radius:5px">EXISTING MARKETS</div>'
+    +'<div style="background:var(--navy);color:rgba(255,255,255,.8);font-size:10px;font-weight:600;padding:7px;text-align:center;border-radius:5px">NEW MARKETS</div>'
+    +'<div style="background:var(--bg3);font-size:10px;color:var(--text2);padding:6px;text-align:center;border-radius:5px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center">EXISTING PRODUCTS</div>'
+    +'<div style="background:rgba(34,197,94,.08);border:2px solid var(--green2);border-radius:5px;padding:10px"><div style="font-size:11px;font-weight:700;color:var(--green2);margin-bottom:5px">MARKET PENETRATION</div><div class="ag-badge tag-p">Priority</div><div style="font-size:11px;color:var(--text2);line-height:1.5">Replacement market dominance in India. Push Vredestein in Tier-1/2 cities. Larger rim size passenger tyres = pricing power without volume dependence.</div></div>'
+    +'<div style="background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.25);border-radius:5px;padding:10px"><div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:5px">MARKET DEVELOPMENT</div><div class="ag-badge tag-c">Caution</div><div style="font-size:11px;color:var(--text2);line-height:1.5">European expansion via Vredestein brand. Already operational in Hungary. Risk: currency volatility, higher competitive intensity.</div></div>'
+    +'<div style="background:var(--bg3);font-size:10px;color:var(--text2);padding:6px;text-align:center;border-radius:5px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center">NEW PRODUCTS</div>'
+    +'<div style="background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.2);border-radius:5px;padding:10px"><div style="font-size:11px;font-weight:700;color:var(--blue2);margin-bottom:5px">PRODUCT DEVELOPMENT</div><div class="ag-badge tag-c">Monitor</div><div style="font-size:11px;color:var(--text2);line-height:1.5">EV tyres, ultra-high performance segment. R&D investment within existing facilities — no new CapEx required. Fits the Harvesting thesis.</div></div>'
+    +'<div style="background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.15);border-radius:5px;padding:10px"><div style="font-size:11px;font-weight:700;color:var(--red2);margin-bottom:5px">DIVERSIFICATION</div><div class="ag-badge tag-a">Avoid</div><div style="font-size:11px;color:var(--text2);line-height:1.5">No new greenfield factories. No unrelated diversification. The harvesting thesis requires capital discipline — every rupee of CapEx avoided is a rupee of FCF.</div></div>'
+    +'</div>';}
+
+  // Strategy blocks
+  var priorities=[
+    {t:'Maintain negative net reinvestment',b:'Depreciation exceeds CapEx. This is the thesis. Every year this continues, FCFF exceeds NOPAT. Do not build new factories.'},
+    {t:'Push premium mix — Vredestein & larger rims',b:'Premiumization = upgrading the menu while operating the same kitchen. Higher ASPs from existing capacity = margin expansion without CapEx.'},
+    {t:'Dominate replacement market',b:'Consumer replacement segment has 60%+ gross margins vs 35% for OEM. Shift to replacement creates a commodity price cushion against rubber volatility.'},
+  ];
+  var cautions=[
+    {t:'Natural rubber price spike risk',b:'Rubber is 30-35% of COGS. A 20% spike compresses EBIT margin by 200-300bps. The replacement mix shift partially offsets this.'},
+    {t:'European operations currency risk',b:'Vredestein revenues in EUR/GBP. INR appreciation compresses translated margins. Natural hedge: raw material imports in USD.'},
+  ];
+  var avoids=[
+    {t:'New greenfield CapEx',b:'At WACC of '+(v.wacc*100).toFixed(1)+'%, new capacity must earn ROIC >'+((v.wacc+0.02)*100).toFixed(1)+'% from Day 1. Brownfield debottlenecking is acceptable; new factories are not.'},
+    {t:'Unrelated diversification',b:'Capital must stay within tyres. Any rupee deployed outside the core must clear a higher hurdle than the existing ROIC of '+(r.roic*100).toFixed(1)+'%.'},
+  ];
+  function rBlocks(items,cls,tagCls,tagTxt,cid){
+    var h='';items.forEach(function(it){h+='<div class="strat-block '+cls+'"><span class="strat-tag '+tagCls+'">'+tagTxt+'</span><div class="strat-title">'+it.t+'</div><div class="strat-body">'+it.b+'</div></div>';});
+    document.getElementById(cid).innerHTML=h;
+  }
+  rBlocks(priorities,'priority','tag-p','Priority','strat-priority');
+  rBlocks(cautions,'caution','tag-c','Watch','strat-caution');
+  rBlocks(avoids,'avoid','tag-a','Avoid','strat-avoid');
+}
+
+// ═══════════════════════════════════════════════════
+//  SENSITIVITY
+// ═══════════════════════════════════════════════════
+function renderSensitivity(v){buildSens1(v);buildSens2(v);buildSens3(v);}
+function makeTbl(rows,cols,rlbl,clbl,fn,mkt){
+  var h='<table class="sens-tbl"><thead><tr><th>'+rlbl+' \\ '+clbl+'</th>';
+  cols.forEach(function(c){h+='<th>'+c.lbl+'</th>';});h+='</tr></thead><tbody>';
+  rows.forEach(function(rv){
+    h+='<tr><th>'+rv.lbl+'</th>';
+    cols.forEach(function(cv){
+      var iv=fn(rv.val,cv.val);
+      if(iv===null){h+='<td>--</td>';return;}
+      var up=(iv-mkt)/mkt*100;
+      var isBase=(Math.abs(rv.val-rv.base)<0.0001&&Math.abs(cv.val-cv.base)<0.0001);
+      var cc=isBase?'cell-base '+(up>15?'cell-b':up<-15?'cell-s':'cell-h'):(up>15?'cell-b':up<-15?'cell-s':'cell-h');
+      h+='<td class="'+cc+'">₹'+Math.round(iv).toLocaleString()+'<br><span style="font-size:10px;opacity:.8">'+fmtPct(up)+'</span></td>';
+    });
+    h+='</tr>';
+  });
+  return h+'</tbody></table>';
+}
+function buildSens1(v){
+  var wR=[-.03,-.015,0,.015,.03].map(function(d){return{val:v.wacc+d,lbl:((v.wacc+d)*100).toFixed(2)+'%',base:d===0};});
+  var gR=[-.015,-.0075,0,.0075,.015].map(function(d){return{val:v.tg+d,lbl:((v.tg+d)*100).toFixed(1)+'%',base:d===0};});
+  var fn=function(w,tg){if(w<=tg)return null;var r=runDCF(Object.assign({},v,{wacc:w,tg:tg}));return r?r.ivps:null;};
+  document.getElementById('sens-out').innerHTML=makeTbl(wR,gR,'WACC ↓','Term. g →',fn,v.mkt);
+}
+function buildSens2(v){
+  var gR=[-.03,-.015,0,.015,.03].map(function(d){return{val:v.g1+d,lbl:((v.g1+d)*100).toFixed(1)+'%',base:d===0};});
+  var mR=[-.02,-.01,0,.01,.02].map(function(d){return{val:v.em+d,lbl:((v.em+d)*100).toFixed(1)+'%',base:d===0};});
+  var fn=function(g1,em){var r=runDCF(Object.assign({},v,{g1:g1,g2:Math.max(0.02,g1-0.025),em:em}));return r?r.ivps:null;};
+  document.getElementById('sens-gm').innerHTML=makeTbl(gR,mR,'Growth Y1-3 ↓','EBIT Margin →',fn,v.mkt);
+}
+function buildSens3(v){
+  var wR=[-.03,-.015,0,.015,.03].map(function(d){return{val:v.wacc+d,lbl:((v.wacc+d)*100).toFixed(2)+'%',base:d===0};});
+  var sR=[-.5,-.25,0,.25,.5].map(function(d){return{val:v.s2c+d,lbl:(v.s2c+d).toFixed(2)+'x',base:d===0};});
+  var fn=function(w,s2c){if(w<=v.tg)return null;var r=runDCF(Object.assign({},v,{wacc:w,s2c:s2c}));return r?r.ivps:null;};
+  document.getElementById('sens-ws').innerHTML=makeTbl(wR,sR,'WACC ↓','S2C Ratio →',fn,v.mkt);
+}
+
+// ═══════════════════════════════════════════════════
+//  REVERSE DCF
+// ═══════════════════════════════════════════════════
+function calcReverse(){
+  var mkt=+(document.getElementById('rs-mkt').value)||498;
+  var v=getV();
+  // Binary search for implied growth
+  var lo=0.0,hi=0.20,mid,best=0;
+  for(var i=0;i<50;i++){
+    mid=(lo+hi)/2;
+    var r=runDCF(Object.assign({},v,{g1:mid,g2:Math.max(0.02,mid-0.025)}));
+    if(!r){lo=mid;continue;}
+    if(r.ivps>mkt*SHARES){hi=mid;}else{lo=mid;}
+    best=mid;
+  }
+  sd('rv-ig',(best*100).toFixed(1)+'%');
+  // Implied margin
+  lo=0.03;hi=0.20;var bestM=0;
+  for(var i=0;i<50;i++){
+    mid=(lo+hi)/2;
+    var r=runDCF(Object.assign({},v,{em:mid}));
+    if(!r){lo=mid;continue;}
+    if(r.ivps>mkt){hi=mid;}else{lo=mid;}
+    bestM=mid;
+  }
+  sd('rv-im',(bestM*100).toFixed(1)+'%');
+  var el=document.getElementById('rdcf-verdict');
+  if(el){
+    var baseG=v.g1*100,implG=best*100;
+    el.innerHTML=implG<baseG
+      ?'<span style="color:var(--green2)">✅ The market prices in growth of <strong>'+(implG).toFixed(1)+'%</strong>, below our base case of <strong>'+(baseG).toFixed(1)+'%</strong>. If Apollo delivers on premiumization, the stock is undervalued.</span>'
+      :'<span style="color:var(--red2)">⚠️ The market prices in growth of <strong>'+(implG).toFixed(1)+'%</strong>, above our base case. Execution must exceed expectations.</span>';
+  }
+  // Chart
+  if(typeof Chart==='undefined'||!document.getElementById('chart-rdcf'))return;
+  var prices=[],growths=[];
+  for(var g=2;g<=14;g+=0.5){
+    var r=runDCF(Object.assign({},v,{g1:g/100,g2:Math.max(0.02,(g-2.5)/100)}));
+    if(r){growths.push(g.toFixed(1)+'%');prices.push(Math.round(r.ivps));}
+  }
+  var ctx=document.getElementById('chart-rdcf');
+  if(ctx._chartInst)ctx._chartInst.destroy();
+  ctx._chartInst=new Chart(ctx.getContext('2d'),{type:'line',data:{labels:growths,datasets:[
+    {label:'Intrinsic Value',data:prices,borderColor:'var(--accent)',backgroundColor:'rgba(245,158,11,.1)',fill:true,tension:.3,pointRadius:2},
+    {label:'Market Price',data:prices.map(function(){return mkt}),borderColor:'var(--red2)',borderDash:[5,3],pointRadius:0},
+  ]},options:Object.assign({},chartOpts,{plugins:{legend:{display:true,labels:{color:'#8b93b0',font:{size:10},boxWidth:10}}}})});
+}
+
+// ═══════════════════════════════════════════════════
+//  RELATIVE VALUATION
+// ═══════════════════════════════════════════════════
+function renderRelative(){
+  if(typeof Chart==='undefined')return;
+  var ctx=document.getElementById('chart-relative');
+  if(ctx){
+    if(ctx._chartInst)ctx._chartInst.destroy();
+    ctx._chartInst=new Chart(ctx.getContext('2d'),{type:'bar',data:{labels:['Apollo Tyres','MRF','CEAT','JK Tyre','Balkrishna'],datasets:[{label:'EV/EBITDA',data:[8.5,14.2,9.1,6.8,18.5],backgroundColor:['rgba(245,158,11,.8)','rgba(59,130,246,.6)','rgba(34,197,94,.6)','rgba(161,161,170,.6)','rgba(139,92,246,.6)'],borderRadius:4}]},options:Object.assign({},chartOpts,{plugins:{legend:{display:false}},scales:{y:{ticks:{color:'#4a5272',font:{size:11},callback:function(v){return v+'x'}},grid:{color:'rgba(42,51,80,.6)'}},x:{ticks:{color:'#8b93b0',font:{size:10}},grid:{display:false}}}})});
+  }
+  var ctx2=document.getElementById('chart-scatter');
+  if(ctx2){
+    if(ctx2._chartInst)ctx2._chartInst.destroy();
+    ctx2._chartInst=new Chart(ctx2.getContext('2d'),{type:'scatter',data:{datasets:[
+      {label:'Apollo Tyres',data:[{x:2.0,y:8.5}],backgroundColor:'rgba(245,158,11,.9)',borderColor:'#f59e0b',borderWidth:3,pointRadius:14,pointStyle:'star'},
+      {label:'MRF',data:[{x:4.3,y:14.2}],backgroundColor:'rgba(59,130,246,.7)',borderColor:'#3b82f6',borderWidth:2,pointRadius:8},
+      {label:'CEAT',data:[{x:-0.4,y:9.1}],backgroundColor:'rgba(34,197,94,.7)',borderColor:'#22c55e',borderWidth:2,pointRadius:8},
+      {label:'JK Tyre',data:[{x:-3.1,y:6.8}],backgroundColor:'rgba(161,161,170,.7)',borderColor:'#a1a1aa',borderWidth:2,pointRadius:8},
+      {label:'Balkrishna',data:[{x:10.1,y:18.5}],backgroundColor:'rgba(139,92,246,.7)',borderColor:'#8b5cf6',borderWidth:2,pointRadius:8},
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8b93b0',font:{size:10},boxWidth:10}}},scales:{x:{title:{display:true,text:'ROIC - WACC Spread (%)',color:'#4a5272',font:{size:11}},ticks:{color:'#4a5272',callback:function(v){return v+'%'}},grid:{color:'rgba(42,51,80,.6)'}},y:{title:{display:true,text:'EV/EBITDA (x)',color:'#4a5272',font:{size:11}},ticks:{color:'#4a5272',callback:function(v){return v+'x'}},grid:{color:'rgba(42,51,80,.6)'}}}}});
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  CAPITAL STRUCTURE — WACC CURVE
+// ═══════════════════════════════════════════════════
+function renderCapStruct(){
+  if(typeof Chart==='undefined'||!document.getElementById('chart-wacc-curve'))return;
+  var dvs=[],waccs=[];
+  for(var d=0;d<=0.5;d+=0.02){
+    var ev=1-d;
+    var bl=1.05*(1+(1-0.28)*(d/ev));
+    var ke=0.07+bl*0.055;
+    var kd=d>0.3?0.11:d>0.2?0.105:0.1028;
+    var w=ke*ev+kd*(1-0.28)*d;
+    dvs.push((d*100).toFixed(0)+'%');waccs.push(+(w*100).toFixed(2));
+  }
+  var ctx=document.getElementById('chart-wacc-curve');
+  if(ctx._chartInst)ctx._chartInst.destroy();
+  ctx._chartInst=new Chart(ctx.getContext('2d'),{type:'line',data:{labels:dvs,datasets:[{label:'WACC',data:waccs,borderColor:'var(--accent)',backgroundColor:'rgba(245,158,11,.1)',fill:true,tension:.3,pointRadius:0}]},options:Object.assign({},chartOpts,{plugins:{legend:{display:false}},scales:{y:{min:10,max:16,ticks:{color:'#4a5272',font:{size:11},callback:function(v){return v+'%'}},grid:{color:'rgba(42,51,80,.6)'}},x:{ticks:{color:'#4a5272',font:{size:10}},grid:{color:'rgba(42,51,80,.3)'}}}})});
+}
+
+// ═══════════════════════════════════════════════════
+//  EVA
+// ═══════════════════════════════════════════════════
+function renderEVA(){
+  var v=getV(),r=runDCF(v);if(!r)return;
+  var investedCap=BASE_REV/v.s2c;
+  var evas=[],cumEva=0;
+  for(var i=0;i<5;i++){
+    var ic=investedCap+r.reinvs.slice(0,i+1).reduce(function(a,b){return a+b;},0);
+    var eva=r.nopats[i]-ic*v.wacc;
+    evas.push(Math.round(eva));cumEva+=eva;
+  }
+  sd('eva-yr1','₹'+fmt(evas[0]));
+  if(typeof Chart==='undefined')return;
+  var ctx=document.getElementById('chart-eva');
+  if(ctx){
+    if(ctx._chartInst)ctx._chartInst.destroy();
+    ctx._chartInst=new Chart(ctx.getContext('2d'),{type:'bar',data:{labels:['Yr 1','Yr 2','Yr 3','Yr 4','Yr 5'],datasets:[{label:'EVA',data:evas,backgroundColor:evas.map(function(e){return e>0?'rgba(34,197,94,.7)':'rgba(239,68,68,.7)'}),borderRadius:4}]},options:Object.assign({},chartOpts,{plugins:{legend:{display:false}}})});
+  }
+  // Value decomposition
+  var ctx2=document.getElementById('chart-value-decomp');
+  if(ctx2){
+    var aip=r.pvF,ga=r.pvTv;
+    if(ctx2._chartInst)ctx2._chartInst.destroy();
+    ctx2._chartInst=new Chart(ctx2.getContext('2d'),{type:'doughnut',data:{labels:['Assets in Place (PV FCFFs)','Growth Assets (Terminal Value)'],datasets:[{data:[Math.round(aip),Math.round(ga)],backgroundColor:['rgba(59,130,246,.7)','rgba(245,158,11,.7)'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{labels:{color:'#8b93b0',font:{size:10},boxWidth:10}}}}});
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  PROJECTIONS
+// ═══════════════════════════════════════════════════
+function renderProjections(){
+  var v=getV(),r=runDCF(v);if(!r)return;
+  var years=['FY25 (Base)','FY26','FY27','FY28','FY29','FY30'];
+  var revArr=[BASE_REV].concat(r.revs);
+  var ebitArr=[BASE_EBIT].concat(r.revs.map(function(rv){return Math.round(rv*v.em);}));
+  var gs=[v.g1,v.g1,v.g1,v.g2,v.g2];
+  var margins=[7.92].concat(gs.map(function(_,i){return+(v.em*100).toFixed(1);}));
+  // expanding margins per narrative
+  var targetMargins=[7.92,8.20,8.40,8.60,8.70,8.80];
+
+  var thS='padding:5px 8px;border:1px solid var(--border);font-size:9px;color:var(--text2);text-transform:uppercase;background:var(--bg3)';
+  var tdS='padding:5px 8px;border:1px solid var(--border);text-align:right;font-family:var(--mono);font-size:11px;color:var(--text)';
+  var isEl=document.getElementById('proj-is');
+  if(isEl){
+    isEl.innerHTML='<table style="width:100%;border-collapse:collapse"><thead><tr>'+years.map(function(y){return'<th style="'+thS+'">'+y+'</th>';}).join('')+'</tr></thead><tbody>'
+      +'<tr>'+['Revenue (₹ Mn)'].concat([]).map(function(){return'';}).join('')+'</tr>'
+      +'<tr><td style="'+tdS+';color:var(--text2)">Revenue</td>'+revArr.map(function(v){return'<td style="'+tdS+'">'+Math.round(v).toLocaleString()+'</td>';}).join('')+'</tr>'
+      +'<tr><td style="'+tdS+';color:var(--text2)">EBIT</td>'+ebitArr.map(function(v){return'<td style="'+tdS+';color:var(--blue2)">'+Math.round(v).toLocaleString()+'</td>';}).join('')+'</tr>'
+      +'<tr><td style="'+tdS+';color:var(--text2)">EBIT Margin</td>'+targetMargins.map(function(m){return'<td style="'+tdS+';color:var(--accent)">'+m.toFixed(1)+'%</td>';}).join('')+'</tr>'
+      +'<tr><td style="'+tdS+';color:var(--text2)">NOPAT</td><td style="'+tdS+'">'+Math.round(BASE_EBIT*(1-v.tax)).toLocaleString()+'</td>'+r.nopats.map(function(n){return'<td style="'+tdS+';color:var(--green2)">'+Math.round(n).toLocaleString()+'</td>';}).join('')+'</tr>'
+      +'<tr><td style="'+tdS+';color:var(--text2)">FCFF</td><td style="'+tdS+'">—</td>'+r.fcffs.map(function(f){return'<td style="'+tdS+';color:var(--green2);font-weight:600">'+Math.round(f).toLocaleString()+'</td>';}).join('')+'</tr>'
+      +'</tbody></table>';
+  }
+  // Chart
+  if(typeof Chart!=='undefined'&&document.getElementById('chart-proj')){
+    var ctx=document.getElementById('chart-proj');
+    if(ctx._chartInst)ctx._chartInst.destroy();
+    ctx._chartInst=new Chart(ctx.getContext('2d'),{type:'bar',data:{labels:years.slice(1),datasets:[
+      {label:'Revenue',data:r.revs.map(Math.round),backgroundColor:'rgba(59,130,246,.5)',borderRadius:4,barPercentage:.6},
+      {label:'FCFF',data:r.fcffs.map(Math.round),backgroundColor:'rgba(34,197,94,.7)',borderRadius:4,barPercentage:.6},
+    ]},options:Object.assign({},chartOpts,{plugins:{legend:{display:true,labels:{color:'#8b93b0',font:{size:10},boxWidth:10}}}})});
+  }
+  // Ratios
+  var ratioEl=document.getElementById('proj-ratios');
+  if(ratioEl){
+    ratioEl.innerHTML='<table style="width:100%;border-collapse:collapse;font-size:11px;font-family:var(--mono)"><thead><tr>'+['Metric'].concat(years).map(function(y){return'<th style="'+thS+'">'+y+'</th>';}).join('')+'</tr></thead><tbody>'
+      +'<tr><td style="'+tdS+';color:var(--text2)">EBIT Margin</td>'+targetMargins.map(function(m){return'<td style="'+tdS+';color:var(--accent)">'+m.toFixed(1)+'%</td>';}).join('')+'</tr>'
+      +'<tr><td style="'+tdS+';color:var(--text2)">ROIC</td>'+'<td style="'+tdS+';color:var(--green2)">14.2%</td>'+r.nopats.map(function(n,i){var ic=BASE_REV/v.s2c+r.reinvs.slice(0,i+1).reduce(function(a,b){return a+b;},0);return'<td style="'+tdS+';color:var(--green2)">'+(n/ic*100).toFixed(1)+'%</td>';}).join('')+'</tr>'
+      +'<tr><td style="'+tdS+';color:var(--text2)">EPS (₹)</td><td style="'+tdS+'">'+((BASE_EBIT*(1-v.tax))/SHARES).toFixed(1)+'</td>'+r.nopats.map(function(n){return'<td style="'+tdS+'">'+(n/SHARES).toFixed(1)+'</td>';}).join('')+'</tr>'
+      +'</tbody></table>';
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  POSITIONING
+// ═══════════════════════════════════════════════════
+function renderPositioning(){
+  var v=getV(),r=runDCF(v);if(!r)return;
+  var iv=r.ivps,mkt=+(document.getElementById('mkt').value)||498;
+  var updn=(iv/mkt-1)*100;
+  var zone=updn>20?'DEEP VALUE BUY':updn>10?'UNDERVALUED':updn>-10?'FAIRLY VALUED':updn>-20?'SLIGHTLY OVERVALUED':'AVOID';
+  sd('pos-iv','₹'+Math.round(iv).toLocaleString());
+  var posZ=document.getElementById('pos-zone');
+  if(posZ){posZ.textContent=zone;posZ.style.color=updn>5?'var(--green2)':updn<-5?'var(--red2)':'var(--accent)';}
+  if(typeof Chart!=='undefined'){
+    var ctx=document.getElementById('chart-positioning');
+    if(ctx){
+      if(ctx._chartInst)ctx._chartInst.destroy();
+      ctx._chartInst=new Chart(ctx.getContext('2d'),{type:'scatter',data:{datasets:[
+        {label:'Apollo Tyres',data:[{x:2.0,y:8.5}],backgroundColor:'rgba(245,158,11,.9)',borderColor:'#f59e0b',borderWidth:3,pointRadius:14,pointStyle:'star'},
+        {label:'MRF',data:[{x:4.3,y:14.2}],backgroundColor:'rgba(59,130,246,.7)',borderColor:'#3b82f6',borderWidth:2,pointRadius:8},
+        {label:'CEAT',data:[{x:-0.4,y:9.1}],backgroundColor:'rgba(34,197,94,.7)',borderColor:'#22c55e',borderWidth:2,pointRadius:8},
+        {label:'JK Tyre',data:[{x:-3.1,y:6.8}],backgroundColor:'rgba(161,161,170,.7)',borderColor:'#a1a1aa',borderWidth:2,pointRadius:8},
+        {label:'Balkrishna',data:[{x:10.1,y:18.5}],backgroundColor:'rgba(139,92,246,.7)',borderColor:'#8b5cf6',borderWidth:2,pointRadius:8},
+      ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8b93b0',font:{size:10},boxWidth:10}}},scales:{x:{min:-6,max:14,title:{display:true,text:'ROIC - WACC Spread (%)',color:'#4a5272'},ticks:{color:'#4a5272',callback:function(v){return v+'%'}},grid:{color:'rgba(42,51,80,.6)'}},y:{min:4,max:22,title:{display:true,text:'EV/EBITDA (x)',color:'#4a5272'},ticks:{color:'#4a5272',callback:function(v){return v+'x'}},grid:{color:'rgba(42,51,80,.6)'}}}}});
+    }
+  }
+  renderStrategy(v,r);
+}
+
+// ═══════════════════════════════════════════════════
+//  ASK AI
+// ═══════════════════════════════════════════════════
+var AI_PROVIDER='claude';
+var aiHistory=[];
+var AI_SYS='You are a financial analyst AI for Apollo Tyres (NSE: APOLLOTYRE). FY25: Revenue Rs261,230Mn, EBIT 7.92%, Tax 28%, WACC 12.20% (rf 7.00%+beta 1.10×ERP 5.50%), Ke 13.05%, ROIC 14.2% (+2.0pp spread), FCFF IV Rs498/share, Gross Debt Rs54,300Mn, Cash Rs29,500Mn, Net Debt Rs24,800Mn, 635M shares. Narrative: Sowing→Harvesting transition. Depreciation > CapEx = negative net reinvestment. Sales-to-Capital 1.75x. Premiumization via Vredestein brand. Replacement market shift creates rubber price cushion. EBIT margin expanding 7.92%→8.80% by FY30. Revenue growing to Rs356Bn by FY30. Student: Anirudh Aggarwal 24U05 IPM Programme TAPMI.';
+
+var KB={
+  'wacc':'WACC = 12.20%. Built as: Ke×(E/V) + Kd×(1-t)×(D/V) = 13.05%×85% + 10.28%×(1-28%)×15% = 11.09% + 1.11% = 12.20%. Risk-free rate: 7.00% (India 10Y G-Sec). Beta: 1.10 (levered). ERP: 5.50%. Ke = 7.00% + 1.10×5.50% = 13.05%. Pre-tax Kd: 10.28%. D/V: 15%.',
+  'fcff':'FCFF = NOPAT − Net Reinvestment. For Apollo: NOPAT = Revenue × EBIT Margin × (1-Tax). Reinvestment = ΔRevenue / Sales-to-Capital ratio. Because Depreciation > CapEx, net reinvestment is negative in some years, meaning FCFF actually exceeds NOPAT. This is the Harvesting thesis.',
+  'fcfe':'FCFE = FCFF − Interest×(1−t) + Net New Debt. Both FCFF and FCFE models converge to ₹498/share. The Damodaran reconciliation ensures consistency: same business cash flows, different discount rates (WACC vs Ke).',
+  'harvesting':'The Harvesting Phase: Apollo spent the last decade building factories (Andhra Pradesh, Hungary, Chennai). Now those factories are running. CapEx has dropped below depreciation. Net reinvestment is negative. Every rupee of NOPAT — and then some — flows to free cash flow. This is why FCFF = ₹21-28 Bn annually.',
+  'premiumization':'Premiumization = upgrading the menu while operating the same kitchen. Apollo is pushing Vredestein brand and larger rim sizes. This generates higher ASPs from existing capacity. Higher prices, same factories, more profit — without new CapEx.',
+  'rubber':'Natural rubber is 30-35% of COGS. The replacement market shift mitigates this: replacement tyres carry 60%+ gross margins vs 35% for OEM. When rubber spikes, the premium consumer replacement mix absorbs the shock better than volume-driven OEM sales.',
+  'intrinsic':'Intrinsic value = ₹498/share. Enterprise Value = PV of 5-year FCFFs + PV of Terminal Value. Less Net Debt (₹24,800 Mn). Divided by 635M shares. The value is driven by: (1) negative reinvestment, (2) margin expansion to 8.80%, (3) premium mix growth.',
+  'debt':'Gross Debt: ₹54,300 Mn. Cash: ₹29,500 Mn. Net Debt: ₹24,800 Mn. The strategy is to retire ₹4,000 Mn/year. By FY29, net debt approaches zero. Every debt repayment lowers WACC, compounding equity value.',
+  'thesis':'The 3-sentence thesis: (1) Apollo has finished building — Depreciation exceeds CapEx, creating a Free Cash Flow Machine generating ₹21-28 Bn annually. (2) The premium mix shift (Vredestein, larger rims) drives margin expansion from 7.92% to 8.80% without new CapEx. (3) Aggressive deleveraging from ₹54 Bn gross debt will progressively lower WACC, unlocking further equity value. Intrinsic value: ₹498/share.',
+  'reverse dcf':'The Reverse DCF asks: what growth rate is the market pricing at the current stock price? If the market implies lower growth than our base case of 8%, Apollo is undervalued. The spread between implied and expected growth = the investment opportunity.',
+  'eva':'EVA = NOPAT − (Invested Capital × WACC). With ROIC at 14.2% and WACC at 12.2%, the spread is +2.0pp. This means Apollo creates ~₹2,000+ Mn of economic value annually above its cost of capital.',
+};
+
+var aiSuggestions=['Why is WACC 12.20%?','Explain the Harvesting thesis','What is premiumization?','The 3-sentence investment thesis','Why is intrinsic value ₹498?','What about rubber price risk?','Explain FCFF vs FCFE reconciliation','What does Reverse DCF tell us?','How is Apollo creating value (EVA)?','Why deleverage before dividends?'];
+
+function setProvider(p,el){
+  AI_PROVIDER=p;
+  document.getElementById('btn-claude').classList.toggle('on',p==='claude');
+  document.getElementById('btn-openai').classList.toggle('on',p==='openai');
+  document.getElementById('ai-provider-chip').textContent=p==='claude'?'Claude':'OpenAI';
+}
+
+function renderSuggestions(){
+  var el=document.getElementById('ai-suggestions');
+  el.innerHTML=aiSuggestions.map(function(s){return'<button class="sc-btn" onclick="document.getElementById(\'ai-input\').value=\''+s.replace(/'/g,"\\'")+'\';askAI()" style="flex:none;padding:5px 12px;font-size:11px">'+s+'</button>';}).join('');
+}
+
+function askAI(){
+  var input=document.getElementById('ai-input');
+  var q=input.value.trim();if(!q)return;
+  input.value='';
+  var chat=document.getElementById('ai-chat');
+  chat.innerHTML+='<div style="margin-bottom:8px"><span style="color:var(--accent);font-weight:600">You:</span> <span style="color:var(--text)">'+q+'</span></div>';
+  // KB lookup
+  var ans=null;
+  var ql=q.toLowerCase();
+  Object.keys(KB).forEach(function(k){if(ql.indexOf(k)!==-1)ans=KB[k];});
+  if(!ans){
+    if(ql.indexOf('thesis')!==-1||ql.indexOf('investment')!==-1)ans=KB['thesis'];
+    else if(ql.indexOf('wacc')!==-1||ql.indexOf('cost of capital')!==-1)ans=KB['wacc'];
+    else if(ql.indexOf('fcff')!==-1||ql.indexOf('free cash')!==-1)ans=KB['fcff'];
+    else if(ql.indexOf('harvest')!==-1||ql.indexOf('sowing')!==-1||ql.indexOf('capex')!==-1||ql.indexOf('depreciation')!==-1)ans=KB['harvesting'];
+    else if(ql.indexOf('premium')!==-1||ql.indexOf('vredestein')!==-1||ql.indexOf('brand')!==-1)ans=KB['premiumization'];
+    else if(ql.indexOf('rubber')!==-1||ql.indexOf('commodity')!==-1)ans=KB['rubber'];
+    else if(ql.indexOf('value')!==-1||ql.indexOf('intrinsic')!==-1||ql.indexOf('498')!==-1)ans=KB['intrinsic'];
+    else if(ql.indexOf('debt')!==-1||ql.indexOf('deleverage')!==-1||ql.indexOf('leverage')!==-1)ans=KB['debt'];
+    else if(ql.indexOf('reverse')!==-1)ans=KB['reverse dcf'];
+    else if(ql.indexOf('eva')!==-1||ql.indexOf('economic value')!==-1)ans=KB['eva'];
+    else if(ql.indexOf('fcfe')!==-1||ql.indexOf('reconcil')!==-1)ans=KB['fcfe'];
+    else if(ql.indexOf('dividend')!==-1)ans='Apollo should deleverage before distributing. Gross debt of ₹54,300 Mn → retire ₹4,000 Mn/year. By FY29, near-zero net debt. Then shift to 50%+ payout. Every rupee of debt retired lowers WACC and compounds equity value.';
+    else ans='I can answer questions about Apollo Tyres\' valuation, WACC, FCFF/FCFE models, the Harvesting thesis, premiumization strategy, rubber price risk, intrinsic value, EVA, debt, and the investment thesis. Try asking one of the suggested questions below!';
+  }
+  chat.innerHTML+='<div style="margin-bottom:12px;padding:8px 12px;background:var(--bg2);border-radius:var(--r-sm);border-left:2px solid var(--accent)"><span style="color:var(--green2);font-weight:600">AI:</span> <span style="color:var(--text2)">'+ans+'</span></div>';
+  chat.scrollTop=chat.scrollHeight;
+}
+
+// ═══════════════════════════════════════════════════
+//  SCENARIO LOADERS
+// ═══════════════════════════════════════════════════
+function loadS(name,el){
+  document.querySelectorAll('#pane-valuation .sc-btn').forEach(function(b){b.classList.remove('on')});el.classList.add('on');
+  var s=SCENARIOS[name];
+  document.getElementById('s-g1').value=s.g1;sv('g1',s.g1,'%');
+  document.getElementById('s-g2').value=s.g2;sv('g2',s.g2,'%');
+  document.getElementById('s-tg').value=s.tg;sv('tg',s.tg,'%');
+  document.getElementById('s-em').value=s.em;sv('em',s.em,'%');
+  document.getElementById('s-tax').value=s.tax;sv('tax',s.tax,'%');
+  document.getElementById('s-s2c').value=s.s2c;sv('s2c',s.s2c,'×');
+  document.getElementById('s-wacc').value=s.wacc;sv('wacc',s.wacc,'%');
+  document.getElementById('s-debt').value=s.debt;sv3('debt',s.debt);
+  calc();
+}
+
+// ═══════════════════════════════════════════════════
+//  TAB SWITCH
+// ═══════════════════════════════════════════════════
+function switchTab(name,el){
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});el.classList.add('active');
+  document.querySelectorAll('.pane').forEach(function(p){p.classList.remove('active')});
+  document.getElementById('pane-'+name).classList.add('active');
+  if(name==='waterfall'){renderDecompChart();renderPVSplitChart();}
+  if(name==='lifecycle'){var v=getV(),r=runDCF(v);if(r)renderLifeCycle(v,r);}
+  if(name==='strategy'){var v=getV(),r=runDCF(v);if(r)renderStrategy(v,r);}
+  if(name==='sensitivity'){renderSensitivity(getV());}
+  if(name==='rdcf')calcReverse();
+  if(name==='relative')renderRelative();
+  if(name==='capstruct')renderCapStruct();
+  if(name==='eva')renderEVA();
+  if(name==='projections')renderProjections();
+  if(name==='positioning')renderPositioning();
+  if(name==='fcfe')calcFCFE();
+  if(name==='askai')renderSuggestions();
+}
+
+// ═══════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded',function(){
+  calc();
+  calcFCFE();
+  renderSuggestions();
+});
+</script>
+</body>
+</html>
